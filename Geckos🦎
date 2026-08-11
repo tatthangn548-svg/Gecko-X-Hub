@@ -1,0 +1,94 @@
+local P, R = game:GetService("Players"), game:GetService("ReplicatedStorage")
+local pl, ev = P.LocalPlayer, R:WaitForChild("rEvents")
+local pGui = pl:WaitForChild("PlayerGui")
+if pGui:FindFirstChild("GeckoGUI") then pGui.GeckoGUI:Destroy() end
+local gui = Instance.new("ScreenGui")
+gui.Name, gui.ResetOnSpawn, gui.Parent = "GeckoGUI", false, pGui
+local fReg, fBld = Font.fromName("Montserrat", Enum.FontWeight.Regular), Font.fromName("Montserrat", Enum.FontWeight.Bold)
+local keyFrame = Instance.new("Frame")
+keyFrame.Size, keyFrame.Position, keyFrame.AnchorPoint = UDim2.fromOffset(350, 200), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5)
+keyFrame.BackgroundColor3, keyFrame.BorderSizePixel, keyFrame.Parent = Color3.fromRGB(25, 25, 25), 0, gui
+Instance.new("UICorner", keyFrame).CornerRadius = UDim.new(0, 12)
+local kTitle = Instance.new("TextLabel")
+kTitle.Size, kTitle.Position, kTitle.BackgroundTransparency = UDim2.new(1, 0, 0, 40), UDim2.fromOffset(0, 15), 1
+kTitle.Text, kTitle.TextColor3, kTitle.TextSize, kTitle.FontFace, kTitle.Parent = "Gecko Key System", Color3.new(1, 1, 1), 20, fBld, keyFrame
+local textBox = Instance.new("TextBox")
+textBox.Size, textBox.Position, textBox.BackgroundColor3 = UDim2.new(1, -40, 0, 40), UDim2.fromOffset(20, 65), Color3.fromRGB(45, 45, 45)
+textBox.Text, textBox.PlaceholderText, textBox.TextColor3, textBox.TextSize, textBox.FontFace, textBox.Parent = "", "Enter Key Here...", Color3.new(1, 1, 1), 14, fReg, keyFrame
+Instance.new("UICorner", textBox).CornerRadius = UDim.new(0, 8)
+local kBtn = Instance.new("TextButton")
+kBtn.Size, kBtn.Position, kBtn.BackgroundColor3 = UDim2.new(1, -40, 0, 40), UDim2.fromOffset(20, 125), Color3.fromRGB(90, 90, 90)
+kBtn.Text, kBtn.TextColor3, kBtn.TextSize, kBtn.FontFace, kBtn.AutoButtonColor, kBtn.Parent = "Check Key", Color3.new(1, 1, 1), 15, fBld, true, keyFrame
+Instance.new("UICorner", kBtn).CornerRadius = UDim.new(0, 8)
+local main = Instance.new("Frame")
+main.Size, main.Position, main.AnchorPoint, main.Visible = UDim2.fromOffset(420, 280), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5), false
+main.BackgroundColor3, main.BorderSizePixel, main.Parent = Color3.fromRGB(20, 20, 20), 0, gui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+local title = Instance.new("TextLabel")
+title.Size, title.Position, title.BackgroundTransparency = UDim2.new(1, -30, 0, 45), UDim2.fromOffset(15, 10), 1
+title.Text, title.TextColor3, title.TextSize, title.FontFace, title.TextXAlignment, title.Parent = "Gecko", Color3.new(1, 1, 1), 24, fBld, Enum.TextXAlignment.Left, main
+local subtitle = Instance.new("TextLabel")
+subtitle.Size, subtitle.Position, subtitle.BackgroundTransparency = UDim2.new(1, -30, 0, 25), UDim2.fromOffset(15, 52), 1
+subtitle.Text, subtitle.TextColor3, subtitle.TextSize, subtitle.FontFace, subtitle.TextXAlignment, subtitle.Parent = "Muscle Legends All-In-One", Color3.fromRGB(170, 170, 170), 14, fReg, Enum.TextXAlignment.Left, main
+local sep = Instance.new("Frame")
+sep.Size, sep.Position, sep.BackgroundColor3, sep.BorderSizePixel, sep.Parent = UDim2.new(1, -30, 0, 1), UDim2.fromOffset(15, 85), Color3.fromRGB(50, 50, 50), 0, main
+local status = Instance.new("TextLabel")
+status.Size, status.Position, status.BackgroundColor3 = UDim2.new(1, -30, 0, 35), UDim2.fromOffset(15, 105), Color3.fromRGB(50, 50, 50)
+status.Text, status.TextColor3, status.TextSize, status.FontFace, status.TextXAlignment, status.Parent = "  Status: System Idle", Color3.fromRGB(220, 220, 220), 14, Font.fromName("Montserrat", Enum.FontWeight.Medium), Enum.TextXAlignment.Left, main
+Instance.new("UICorner", status).CornerRadius = UDim.new(0, 8)
+local button = Instance.new("TextButton")
+button.Size, button.Position, button.BackgroundColor3 = UDim2.new(1, -30, 0, 45), UDim2.fromOffset(15, 155), Color3.fromRGB(90, 90, 90)
+button.Text, button.TextColor3, button.TextSize, button.FontFace, button.AutoButtonColor, button.Parent = "Activate Super Auto", Color3.new(1, 1, 1), 16, fBld, true, main
+Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+
+_G.SuperAuto = false
+button.MouseButton1Click:Connect(function()
+	_G.SuperAuto = not _G.SuperAuto
+	if _G.SuperAuto then
+		status.Text, button.Text, button.BackgroundColor3 = "  Status: ALL AUTO RUNNING...", "Deactivate Super Auto", Color3.fromRGB(180, 40, 40)
+		task.spawn(function()
+			local rEv = ev:WaitForChild("rebirthEvent")
+			local oEv = ev:WaitForChild("openCrystalEvent")
+			local tick = 0
+			while _G.SuperAuto do
+				local ch = pl.Character
+				local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+				if hum and hum.Health > 0 then
+					local tool = ch:FindFirstChildOfClass("Tool")
+					if tool then
+						tool:Activate()
+					else
+						local bp = pl:FindFirstChild("Backpack")
+						local tl = bp and bp:FindFirstChildOfClass("Tool")
+						if tl then hum:EquipTool(tl) end
+					end
+				end
+				tick = tick + 1
+				if tick % 15 == 0 then oEv:FireServer("openCrystal", "Blue Crystal") end
+				if tick % 45 == 0 then rEv:FireServer("rebirthRequest") end
+				task.wait(0.02)
+			end
+		end)
+	else
+		status.Text, button.Text, button.BackgroundColor3 = "  Status: System Idle", "Activate Super Auto", Color3.fromRGB(90, 90, 90)
+	end
+end)
+
+local close = Instance.new("TextButton")
+close.Size, close.Position, close.BackgroundColor3 = UDim2.fromOffset(30, 30), UDim2.new(1, -40, 0, 12), Color3.fromRGB(50, 50, 50)
+close.Text, close.TextColor3, close.TextSize, close.FontFace, close.Parent = "X", Color3.new(1, 1, 1), 14, fBld, main
+Instance.new("UICorner", close).CornerRadius = UDim.new(0, 8)
+close.MouseButton1Click:Connect(function()
+	_G.SuperAuto = false
+	gui:Destroy()
+end)
+
+kBtn.MouseButton1Click:Connect(function()
+	if textBox.Text == "GeckoMus" then
+		keyFrame:Destroy()
+		main.Visible = true
+	else
+		textBox.Text = ""
+		textBox.PlaceholderText = "Wrong Key! Try Again..."
+	end
+end)
