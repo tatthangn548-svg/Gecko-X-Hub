@@ -1,0 +1,99 @@
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local oldGui = playerGui:FindFirstChild("Gecko")
+if oldGui then
+	oldGui:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "Gecko"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+local uses = 0
+local maxUses = 50
+local correctKey = "geckomus"
+
+local main = Instance.new("Frame")
+main.Size = UDim2.fromOffset(360, 210)
+main.Position = UDim2.fromScale(0.5, 0.5)
+main.AnchorPoint = Vector2.new(0.5, 0.5)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.BorderSizePixel = 0
+main.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = main
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -30, 0, 40)
+title.Position = UDim2.fromOffset(15, 10)
+title.BackgroundTransparency = 1
+title.Text = "Gecko"
+title.TextColor3 = Color3.fromRGB(235, 235, 235)
+title.TextSize = 22
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = main
+
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(1, -30, 0, 42)
+keyBox.Position = UDim2.fromOffset(15, 60)
+keyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+keyBox.BorderSizePixel = 0
+keyBox.PlaceholderText = "Enter Key"
+keyBox.PlaceholderColor3 = Color3.fromRGB(130, 130, 130)
+keyBox.TextColor3 = Color3.fromRGB(235, 235, 235)
+keyBox.TextSize = 15
+keyBox.Font = Enum.Font.Gotham
+keyBox.ClearTextOnFocus = false
+keyBox.Parent = main
+
+local keyCorner = Instance.new("UICorner")
+keyCorner.CornerRadius = UDim.new(0, 7)
+keyCorner.Parent = keyBox
+
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(1, -30, 0, 42)
+button.Position = UDim2.fromOffset(15, 115)
+button.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+button.BorderSizePixel = 0
+button.Text = "Verify"
+button.TextColor3 = Color3.fromRGB(235, 235, 235)
+button.TextSize = 15
+button.Font = Enum.Font.GothamBold
+button.Parent = main
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 7)
+buttonCorner.Parent = button
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -30, 0, 25)
+status.Position = UDim2.fromOffset(15, 165)
+status.BackgroundTransparency = 1
+status.Text = "Uses: 0/50"
+status.TextColor3 = Color3.fromRGB(170, 170, 170)
+status.TextSize = 13
+status.Font = Enum.Font.Gotham
+status.Parent = main
+
+button.MouseButton1Click:Connect(function()
+	if uses >= maxUses then
+		status.Text = "Limit reached: 50/50"
+		return
+	end
+
+	local enteredKey = keyBox.Text:gsub("^%s*(.-)%s*$", "%1"):lower()
+
+	if enteredKey == correctKey then
+		uses += 1
+		status.Text = "Valid Key | Uses: " .. uses .. "/50"
+	else
+		status.Text = "Invalid Key"
+	end
+end)
