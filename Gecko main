@@ -1,0 +1,151 @@
+```lua
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local oldGui = playerGui:FindFirstChild("Gecko")
+if oldGui then
+	oldGui:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "Gecko"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+local function createCorner(parent, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius)
+	corner.Parent = parent
+end
+
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.fromOffset(360, 210)
+keyFrame.Position = UDim2.fromScale(0.5, 0.5)
+keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+keyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+keyFrame.BorderSizePixel = 0
+keyFrame.Parent = gui
+createCorner(keyFrame, 10)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -30, 0, 40)
+title.Position = UDim2.fromOffset(15, 10)
+title.BackgroundTransparency = 1
+title.Text = "Gecko"
+title.TextColor3 = Color3.fromRGB(235, 235, 235)
+title.TextSize = 22
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = keyFrame
+
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(1, -30, 0, 42)
+keyBox.Position = UDim2.fromOffset(15, 60)
+keyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+keyBox.BorderSizePixel = 0
+keyBox.PlaceholderText = "Enter Key"
+keyBox.PlaceholderColor3 = Color3.fromRGB(130, 130, 130)
+keyBox.TextColor3 = Color3.fromRGB(235, 235, 235)
+keyBox.TextSize = 15
+keyBox.Font = Enum.Font.Gotham
+keyBox.ClearTextOnFocus = false
+keyBox.Parent = keyFrame
+createCorner(keyBox, 7)
+
+local verify = Instance.new("TextButton")
+verify.Size = UDim2.new(1, -30, 0, 42)
+verify.Position = UDim2.fromOffset(15, 115)
+verify.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+verify.BorderSizePixel = 0
+verify.Text = "Verify"
+verify.TextColor3 = Color3.fromRGB(235, 235, 235)
+verify.TextSize = 15
+verify.Font = Enum.Font.GothamBold
+verify.Parent = keyFrame
+createCorner(verify, 7)
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -30, 0, 25)
+status.Position = UDim2.fromOffset(15, 165)
+status.BackgroundTransparency = 1
+status.Text = ""
+status.TextColor3 = Color3.fromRGB(170, 170, 170)
+status.TextSize = 13
+status.Font = Enum.Font.Gotham
+status.Parent = keyFrame
+
+local function showMainGui()
+	keyFrame:Destroy()
+
+	local main = Instance.new("Frame")
+	main.Size = UDim2.fromOffset(400, 250)
+	main.Position = UDim2.fromScale(0.5, 0.5)
+	main.AnchorPoint = Vector2.new(0.5, 0.5)
+	main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	main.BorderSizePixel = 0
+	main.Parent = gui
+	createCorner(main, 10)
+
+	local mainTitle = Instance.new("TextLabel")
+	mainTitle.Size = UDim2.new(1, -30, 0, 45)
+	mainTitle.Position = UDim2.fromOffset(15, 10)
+	mainTitle.BackgroundTransparency = 1
+	mainTitle.Text = "Gecko"
+	mainTitle.TextColor3 = Color3.fromRGB(235, 235, 235)
+	mainTitle.TextSize = 23
+	mainTitle.Font = Enum.Font.GothamBold
+	mainTitle.TextXAlignment = Enum.TextXAlignment.Left
+	mainTitle.Parent = main
+
+	local info = Instance.new("TextLabel")
+	info.Size = UDim2.new(1, -30, 0, 30)
+	info.Position = UDim2.fromOffset(15, 60)
+	info.BackgroundTransparency = 1
+	info.Text = "Key verified successfully"
+	info.TextColor3 = Color3.fromRGB(170, 170, 170)
+	info.TextSize = 14
+	info.Font = Enum.Font.Gotham
+	info.TextXAlignment = Enum.TextXAlignment.Left
+	info.Parent = main
+
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(1, -30, 0, 45)
+	button.Position = UDim2.fromOffset(15, 105)
+	button.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+	button.BorderSizePixel = 0
+	button.Text = "Gecko"
+	button.TextColor3 = Color3.fromRGB(235, 235, 235)
+	button.TextSize = 15
+	button.Font = Enum.Font.GothamBold
+	button.Parent = main
+	createCorner(button, 7)
+
+	local result = Instance.new("TextLabel")
+	result.Size = UDim2.new(1, -30, 0, 25)
+	result.Position = UDim2.fromOffset(15, 165)
+	result.BackgroundTransparency = 1
+	result.Text = ""
+	result.TextColor3 = Color3.fromRGB(170, 170, 170)
+	result.TextSize = 13
+	result.Font = Enum.Font.Gotham
+	result.Parent = main
+
+	button.MouseButton1Click:Connect(function()
+		result.Text = "Gecko is ready"
+	end)
+end
+
+verify.MouseButton1Click:Connect(function()
+	local enteredKey = keyBox.Text:gsub("^%s*(.-)%s*$", "%1"):lower()
+
+	if enteredKey == "geckomus" then
+		status.Text = "Valid Key"
+		task.wait(0.3)
+		showMainGui()
+	else
+		status.Text = "Invalid Key"
+	end
+end)
+```
