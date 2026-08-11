@@ -1,0 +1,354 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+if playerGui:FindFirstChild("GeckoMus") then
+	playerGui.GeckoMus:Destroy()
+end
+
+local function corner(parent, radius)
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, radius)
+	c.Parent = parent
+	return c
+end
+
+local function stroke(parent, thickness, transparency)
+	local s = Instance.new("UIStroke")
+	s.Thickness = thickness
+	s.Transparency = transparency or 0
+	s.Color = Color3.fromRGB(255, 255, 255)
+	s.Parent = parent
+	return s
+end
+
+local function tween(obj, time, props)
+	local t = TweenService:Create(
+		obj,
+		TweenInfo.new(time, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		props
+	)
+	t:Play()
+	return t
+end
+
+local BG_DARK = Color3.fromRGB(25, 26, 33)
+local BG_MEDIUM = Color3.fromRGB(35, 36, 45)
+local BG_LIGHT = Color3.fromRGB(50, 51, 62)
+local ACCENT = Color3.fromRGB(110, 110, 245)
+local TEXT = Color3.fromRGB(230, 230, 240)
+local TEXT_DIM = Color3.fromRGB(170, 170, 185)
+
+local flags = {}
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "GeckoMus"
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = playerGui
+
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.fromOffset(480, 380)
+keyFrame.Position = UDim2.fromScale(0.5, 0.5)
+keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+keyFrame.BackgroundColor3 = BG_DARK
+keyFrame.Parent = gui
+corner(keyFrame, 20)
+stroke(keyFrame, 1.5, 0.8)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -60, 0, 55)
+title.Position = UDim2.fromOffset(30, 25)
+title.BackgroundTransparency = 1
+title.Text = "GeckoMus Loader"
+title.TextColor3 = TEXT
+title.TextSize = 28
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = keyFrame
+
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(1, -60, 0, 70)
+keyBox.Position = UDim2.fromOffset(30, 115)
+keyBox.BackgroundColor3 = BG_MEDIUM
+keyBox.PlaceholderText = "Enter the Key..."
+keyBox.PlaceholderColor3 = TEXT_DIM
+keyBox.Text = ""
+keyBox.TextColor3 = TEXT
+keyBox.TextSize = 22
+keyBox.Font = Enum.Font.Gotham
+keyBox.ClearTextOnFocus = false
+keyBox.Parent = keyFrame
+corner(keyBox, 16)
+stroke(keyBox, 1, 0.9)
+
+local mainButton = Instance.new("TextButton")
+mainButton.Size = UDim2.new(1, -60, 0, 65)
+mainButton.Position = UDim2.fromOffset(30, 215)
+mainButton.BackgroundColor3 = ACCENT
+mainButton.Text = "Unlock"
+mainButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+mainButton.TextSize = 24
+mainButton.Font = Enum.Font.GothamBold
+mainButton.Parent = keyFrame
+corner(mainButton, 16)
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -60, 0, 35)
+status.Position = UDim2.fromOffset(30, 295)
+status.BackgroundTransparency = 1
+status.Text = ""
+status.TextColor3 = Color3.fromRGB(255, 120, 120)
+status.TextSize = 17
+status.Font = Enum.Font.Gotham
+status.Parent = keyFrame
+
+local footer = Instance.new("TextLabel")
+footer.Size = UDim2.new(1, -60, 0, 40)
+footer.Position = UDim2.fromOffset(30, 330)
+footer.BackgroundTransparency = 1
+footer.Text = "© GeckoMus"
+footer.TextColor3 = TEXT_DIM
+footer.TextSize = 16
+footer.Font = Enum.Font.GothamMedium
+footer.Parent = keyFrame
+
+local function showMain()
+	local main = Instance.new("Frame")
+	main.Size = UDim2.fromOffset(700, 480)
+	main.Position = UDim2.fromScale(0.5, 0.5)
+	main.AnchorPoint = Vector2.new(0.5, 0.5)
+	main.BackgroundColor3 = BG_DARK
+	main.BackgroundTransparency = 1
+	main.Parent = gui
+	corner(main, 22)
+	stroke(main, 1.5, 0.85)
+
+	local header = Instance.new("Frame")
+	header.Size = UDim2.new(1, 0, 0, 60)
+	header.BackgroundColor3 = BG_MEDIUM
+	header.Parent = main
+	corner(header, 22)
+
+	local headerFix = Instance.new("Frame")
+	headerFix.Size = UDim2.new(1, 0, 0, 25)
+	headerFix.Position = UDim2.new(0, 0, 1, -25)
+	headerFix.BackgroundColor3 = BG_MEDIUM
+	headerFix.BorderSizePixel = 0
+	headerFix.Parent = header
+
+	local headerTitle = Instance.new("TextLabel")
+	headerTitle.Size = UDim2.new(1, -120, 1, 0)
+	headerTitle.Position = UDim2.fromOffset(20, 0)
+	headerTitle.BackgroundTransparency = 1
+	headerTitle.Text = "GeckoMus | Main"
+	headerTitle.TextColor3 = TEXT
+	headerTitle.TextSize = 24
+	headerTitle.Font = Enum.Font.GothamBold
+	headerTitle.TextXAlignment = Enum.TextXAlignment.Left
+	headerTitle.Parent = header
+
+	local closeBtn = Instance.new("TextButton")
+	closeBtn.Size = UDim2.fromOffset(35, 35)
+	closeBtn.Position = UDim2.new(1, -50, 0, 12)
+	closeBtn.BackgroundTransparency = 1
+	closeBtn.Text = "×"
+	closeBtn.TextColor3 = TEXT
+	closeBtn.TextSize = 30
+	closeBtn.Font = Enum.Font.GothamBold
+	closeBtn.Parent = header
+	closeBtn.MouseButton1Click:Connect(function()
+		gui:Destroy()
+		flags = {}
+	end)
+
+	local sidebar = Instance.new("Frame")
+	sidebar.Size = UDim2.new(0, 150, 1, -80)
+	sidebar.Position = UDim2.fromOffset(15, 70)
+	sidebar.BackgroundColor3 = BG_MEDIUM
+	sidebar.Parent = main
+	corner(sidebar, 18)
+
+	local tabs = {}
+	local function selectTab(tabName)
+		for _, btn in ipairs(tabs) do
+			btn.BackgroundColor3 = btn.Name == tabName and ACCENT or BG_LIGHT
+			btn.TextColor3 = btn.Name == tabName and Color3.fromRGB(255,255,255) or TEXT
+		end
+		for _, frame in ipairs(main:GetChildren()) do
+			if frame:IsA("Frame") and frame.Name:match("^Content_") then
+				frame.Visible = (frame.Name == "Content_"..tabName)
+			end
+		end
+	end
+
+	local function createTabButton(name, yPos)
+		local btn = Instance.new("TextButton")
+		btn.Name = name
+		btn.Size = UDim2.new(1, -20, 0, 45)
+		btn.Position = UDim2.fromOffset(10, yPos)
+		btn.BackgroundColor3 = name == "Main" and ACCENT or BG_LIGHT
+		btn.Text = name
+		btn.TextColor3 = name == "Main" and Color3.fromRGB(255,255,255) or TEXT
+		btn.TextSize = 20
+		btn.Font = Enum.Font.GothamBold
+		btn.Parent = sidebar
+		corner(btn, 12)
+		btn.MouseButton1Click:Connect(function()
+			selectTab(name)
+		end)
+		table.insert(tabs, btn)
+		return btn
+	end
+
+	createTabButton("Main", 15)
+	createTabButton("Farm", 75)
+	createTabButton("Misc", 135)
+
+	local contentContainer = Instance.new("Frame")
+	contentContainer.Size = UDim2.new(1, -195, 1, -95)
+	contentContainer.Position = UDim2.fromOffset(175, 75)
+	contentContainer.BackgroundTransparency = 1
+	contentContainer.Parent = main
+
+	local function createContentFrame(tabName)
+		local frame = Instance.new("Frame")
+		frame.Name = "Content_"..tabName
+		frame.Size = UDim2.new(1, 0, 1, 0)
+		frame.BackgroundColor3 = BG_MEDIUM
+		frame.BackgroundTransparency = 0.8
+		frame.Visible = (tabName == "Main")
+		frame.Parent = contentContainer
+		corner(frame, 16)
+		return frame
+	end
+
+	local function createToggle(parent, text, y, flagName)
+		local button = Instance.new("TextButton")
+		button.Size = UDim2.new(1, -30, 0, 50)
+		button.Position = UDim2.fromOffset(15, y)
+		button.BackgroundColor3 = BG_LIGHT
+		button.Text = "OFF    " .. text
+		button.TextColor3 = Color3.fromRGB(245, 245, 250)
+		button.TextSize = 19
+		button.Font = Enum.Font.GothamMedium
+		button.TextXAlignment = Enum.TextXAlignment.Left
+		button.Parent = parent
+		corner(button, 12)
+
+		local enabled = false
+		flags[flagName] = false
+
+		button.MouseButton1Click:Connect(function()
+			enabled = not enabled
+			flags[flagName] = enabled
+			button.Text = (enabled and "ON     " or "OFF    ") .. text
+			button.BackgroundColor3 = enabled and Color3.fromRGB(90, 140, 100) or BG_LIGHT
+		end)
+		return button
+	end
+
+	local mainContent = createContentFrame("Main")
+	createToggle(mainContent, "Auto Lift", 15, "AutoLift")
+	createToggle(mainContent, "Auto Punch", 80, "AutoPunch")
+	createToggle(mainContent, "Auto Egg", 145, "AutoEgg")
+	createToggle(mainContent, "Auto Sell", 210, "AutoSell")
+
+	local rebirthTitle = Instance.new("TextLabel")
+	rebirthTitle.Size = UDim2.new(1, -30, 0, 35)
+	rebirthTitle.Position = UDim2.fromOffset(15, 275)
+	rebirthTitle.BackgroundTransparency = 1
+	rebirthTitle.Text = "Rebirth System"
+	rebirthTitle.TextColor3 = TEXT
+	rebirthTitle.TextSize = 22
+	rebirthTitle.Font = Enum.Font.GothamBold
+	rebirthTitle.TextXAlignment = Enum.TextXAlignment.Left
+	rebirthTitle.Parent = mainContent
+
+	local rebirthInfo = Instance.new("TextLabel")
+	rebirthInfo.Size = UDim2.new(1, -30, 0, 30)
+	rebirthInfo.Position = UDim2.fromOffset(15, 315)
+	rebirthInfo.BackgroundTransparency = 1
+	rebirthInfo.Text = "Current: 0"
+	rebirthInfo.TextColor3 = TEXT_DIM
+	rebirthInfo.TextSize = 18
+	rebirthInfo.Font = Enum.Font.GothamMedium
+	rebirthInfo.TextXAlignment = Enum.TextXAlignment.Left
+	rebirthInfo.Parent = mainContent
+
+	local targetInfo = Instance.new("TextLabel")
+	targetInfo.Size = UDim2.new(1, -30, 0, 30)
+	targetInfo.Position = UDim2.fromOffset(15, 345)
+	targetInfo.BackgroundTransparency = 1
+	targetInfo.Text = "Target: 0"
+	targetInfo.TextColor3 = TEXT_DIM
+	targetInfo.TextSize = 18
+	targetInfo.Font = Enum.Font.GothamMedium
+	targetInfo.TextXAlignment = Enum.TextXAlignment.Left
+	targetInfo.Parent = mainContent
+
+	local targetBox = Instance.new("TextBox")
+	targetBox.Size = UDim2.fromOffset(180, 45)
+	targetBox.Position = UDim2.fromOffset(15, 385)
+	targetBox.BackgroundColor3 = BG_LIGHT
+	targetBox.PlaceholderText = "Target..."
+	targetBox.PlaceholderColor3 = TEXT_DIM
+	targetBox.Text = ""
+	targetBox.TextColor3 = TEXT
+	targetBox.TextSize = 19
+	targetBox.Font = Enum.Font.Gotham
+	targetBox.Parent = mainContent
+	corner(targetBox, 12)
+
+	local autoRebirthBtn = createToggle(mainContent, "Auto Rebirth", 385, "AutoRebirth")
+	autoRebirthBtn.Position = UDim2.fromOffset(210, 385)
+	autoRebirthBtn.Size = UDim2.new(1, -235, 0, 45)
+
+	local farmContent = createContentFrame("Farm")
+	createToggle(farmContent, "Speed Boost", 15, "SpeedBoost")
+	createToggle(farmContent, "Jump Power", 80, "JumpPower")
+	createToggle(farmContent, "Fly", 145, "Fly")
+	createToggle(farmContent, "Noclip", 210, "Noclip")
+	createToggle(farmContent, "Auto Farm", 275, "AutoFarm")
+
+	local miscContent = createContentFrame("Misc")
+	createToggle(miscContent, "FPS Unlocker", 15, "FPSUnlock")
+	createToggle(miscContent, "Low Graphics", 80, "LowGraphics")
+	createToggle(miscContent, "Anti AFK", 145, "AntiAFK")
+
+	tween(main, 0.4, { BackgroundTransparency = 0.05 })
+end
+
+local checking = false
+local function checkKey()
+	if checking then return end
+	local input = keyBox.Text:lower():gsub("%s+", "")
+	if input == "geckomus" then
+		checking = true
+		status.TextColor3 = Color3.fromRGB(110, 220, 140)
+		status.Text = "Key accepted"
+		task.wait(0.3)
+		tween(keyFrame, 0.4, { Size = UDim2.fromOffset(480, 320), BackgroundTransparency = 1 })
+		task.wait(0.4)
+		keyFrame:Destroy()
+		showMain()
+	else
+		status.TextColor3 = Color3.fromRGB(255, 110, 110)
+		status.Text = "Invalid key"
+		local origPos = keyBox.Position
+		for i = 1, 3 do
+			tween(keyBox, 0.08, { Position = UDim2.fromOffset(origPos.X.Offset - 4, origPos.Y.Offset) })
+			task.wait(0.1)
+			tween(keyBox, 0.08, { Position = UDim2.fromOffset(origPos.X.Offset + 4, origPos.Y.Offset) })
+			task.wait(0.1)
+		end
+		tween(keyBox, 0.08, { Position = origPos })
+	end
+end
+
+mainButton.MouseButton1Click:Connect(checkKey)
+keyBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then checkKey() end
+end)
