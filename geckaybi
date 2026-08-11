@@ -1,0 +1,456 @@
+```lua
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local KEY = "GeckoMus"
+local AUTO_INTERVAL = 0.05
+local CRYSTAL_INTERVAL = 20
+local REBIRTH_INTERVAL = 60
+
+-- Xóa GUI cũ
+local oldGui = PlayerGui:FindFirstChild("GeckoGUI")
+if oldGui then
+    oldGui:Destroy()
+end
+
+-- GUI chính
+local gui = Instance.new("ScreenGui")
+gui.Name = "GeckoGUI"
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = PlayerGui
+
+-- Font
+local function safeFont(name, weight)
+    local ok, result = pcall(function()
+        return Font.fromName(name, weight)
+    end)
+
+    return ok and result or Font.fromEnum(Enum.Font.SourceSans)
+end
+
+local fReg = safeFont("Montserrat", Enum.FontWeight.Regular)
+local fMed = safeFont("Montserrat", Enum.FontWeight.Medium)
+local fBld = safeFont("Montserrat", Enum.FontWeight.Bold)
+
+-- Helper
+local function addCorner(object, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius)
+    corner.Parent = object
+end
+
+local function createLabel(parent, name, size, position, text, textSize, font, color)
+    local label = Instance.new("TextLabel")
+
+    label.Name = name
+    label.Size = size
+    label.Position = position
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = color or Color3.new(1, 1, 1)
+    label.TextSize = textSize
+    label.FontFace = font
+
+    label.Parent = parent
+
+    return label
+end
+
+--==================================================
+-- KEY FRAME
+--==================================================
+
+local keyFrame = Instance.new("Frame")
+keyFrame.Name = "KeyFrame"
+keyFrame.Size = UDim2.fromOffset(350, 200)
+keyFrame.Position = UDim2.fromScale(0.5, 0.5)
+keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+keyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+keyFrame.BorderSizePixel = 0
+keyFrame.Parent = gui
+
+addCorner(keyFrame, 12)
+
+local kTitle = createLabel(
+    keyFrame,
+    "Title",
+    UDim2.new(1, -30, 0, 40),
+    UDim2.fromOffset(15, 15),
+    "Gecko Key System",
+    20,
+    fBld
+)
+
+local textBox = Instance.new("TextBox")
+textBox.Name = "KeyBox"
+textBox.Size = UDim2.new(1, -40, 0, 40)
+textBox.Position = UDim2.fromOffset(20, 65)
+textBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+textBox.BorderSizePixel = 0
+textBox.Text = ""
+textBox.PlaceholderText = "Enter Key Here..."
+textBox.PlaceholderColor3 = Color3.fromRGB(140, 140, 140)
+textBox.TextColor3 = Color3.new(1, 1, 1)
+textBox.TextSize = 14
+textBox.FontFace = fReg
+textBox.ClearTextOnFocus = false
+textBox.Parent = keyFrame
+
+addCorner(textBox, 8)
+
+local kBtn = Instance.new("TextButton")
+kBtn.Name = "CheckButton"
+kBtn.Size = UDim2.new(1, -40, 0, 40)
+kBtn.Position = UDim2.fromOffset(20, 125)
+kBtn.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+kBtn.BorderSizePixel = 0
+kBtn.Text = "Check Key"
+kBtn.TextColor3 = Color3.new(1, 1, 1)
+kBtn.TextSize = 15
+kBtn.FontFace = fBld
+kBtn.AutoButtonColor = true
+kBtn.Parent = keyFrame
+
+addCorner(kBtn, 8)
+
+--==================================================
+-- MAIN FRAME
+--==================================================
+
+local main = Instance.new("Frame")
+main.Name = "Main"
+main.Size = UDim2.fromOffset(420, 280)
+main.Position = UDim2.fromScale(0.5, 0.5)
+main.AnchorPoint = Vector2.new(0.5, 0.5)
+main.Visible = false
+main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+main.BorderSizePixel = 0
+main.Parent = gui
+
+addCorner(main, 12)
+
+local title = createLabel(
+    main,
+    "Title",
+    UDim2.new(1, -60, 0, 45),
+    UDim2.fromOffset(15, 10),
+    "Gecko",
+    24,
+    fBld
+)
+
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+local subtitle = createLabel(
+    main,
+    "Subtitle",
+    UDim2.new(1, -30, 0, 25),
+    UDim2.fromOffset(15, 52),
+    "Muscle Legends All-In-One",
+    14,
+    fReg,
+    Color3.fromRGB(170, 170, 170)
+)
+
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local sep = Instance.new("Frame")
+sep.Name = "Separator"
+sep.Size = UDim2.new(1, -30, 0, 1)
+sep.Position = UDim2.fromOffset(15, 85)
+sep.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+sep.BorderSizePixel = 0
+sep.Parent = main
+
+local status = Instance.new("TextLabel")
+status.Name = "Status"
+status.Size = UDim2.new(1, -30, 0, 35)
+status.Position = UDim2.fromOffset(15, 105)
+status.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+status.BorderSizePixel = 0
+status.Text = "  Status: System Idle"
+status.TextColor3 = Color3.fromRGB(220, 220, 220)
+status.TextSize = 14
+status.FontFace = fMed
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.Parent = main
+
+addCorner(status, 8)
+
+local button = Instance.new("TextButton")
+button.Name = "AutoButton"
+button.Size = UDim2.new(1, -30, 0, 45)
+button.Position = UDim2.fromOffset(15, 155)
+button.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+button.BorderSizePixel = 0
+button.Text = "Activate Super Auto"
+button.TextColor3 = Color3.new(1, 1, 1)
+button.TextSize = 16
+button.FontFace = fBld
+button.AutoButtonColor = true
+button.Parent = main
+
+addCorner(button, 8)
+
+local close = Instance.new("TextButton")
+close.Name = "Close"
+close.Size = UDim2.fromOffset(30, 30)
+close.Position = UDim2.new(1, -40, 0, 12)
+close.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+close.BorderSizePixel = 0
+close.Text = "X"
+close.TextColor3 = Color3.new(1, 1, 1)
+close.TextSize = 14
+close.FontFace = fBld
+close.Parent = main
+
+addCorner(close, 8)
+
+--==================================================
+-- STATE
+--==================================================
+
+local SuperAuto = false
+local autoThread = nil
+
+--==================================================
+-- REMOTES
+--==================================================
+
+local function getRemotes()
+    local folder = ReplicatedStorage:FindFirstChild("rEvents")
+        or ReplicatedStorage
+
+    return {
+        Muscle = folder:FindFirstChild("muscleEvent"),
+        Rebirth = folder:FindFirstChild("rebirthEvent"),
+        Crystal = folder:FindFirstChild("openCrystalEvent")
+    }
+end
+
+local function fireRemote(remote, ...)
+    if not remote or not remote:IsA("RemoteEvent") then
+        return false
+    end
+
+    local args = table.pack(...)
+
+    local ok = pcall(function()
+        remote:FireServer(table.unpack(args, 1, args.n))
+    end)
+
+    return ok
+end
+
+--==================================================
+-- CHARACTER / TOOL
+--==================================================
+
+local function getHumanoid()
+    local character = LocalPlayer.Character
+
+    if not character then
+        return nil
+    end
+
+    return character:FindFirstChildOfClass("Humanoid")
+end
+
+local function getEquippedTool()
+    local character = LocalPlayer.Character
+
+    if not character then
+        return nil
+    end
+
+    return character:FindFirstChildOfClass("Tool")
+end
+
+local function equipTool()
+    local humanoid = getHumanoid()
+
+    if not humanoid then
+        return nil
+    end
+
+    local equipped = getEquippedTool()
+
+    if equipped then
+        return equipped
+    end
+
+    local backpack = LocalPlayer:FindFirstChildOfClass("Backpack")
+    local tool = backpack and backpack:FindFirstChildOfClass("Tool")
+
+    if not tool then
+        return nil
+    end
+
+    pcall(function()
+        humanoid:EquipTool(tool)
+    end)
+
+    task.wait()
+
+    return getEquippedTool()
+end
+
+--==================================================
+-- AUTO ACTION
+--==================================================
+
+local function doAutoAction(remotes)
+    if not SuperAuto then
+        return
+    end
+
+    local tool = getEquippedTool() or equipTool()
+
+    if not tool then
+        return
+    end
+
+    pcall(function()
+        tool:Activate()
+    end)
+
+    fireRemote(remotes.Muscle, "liftWeightRequest")
+    fireRemote(remotes.Muscle, "gainMuscle")
+end
+
+--==================================================
+-- STOP AUTO
+--==================================================
+
+local function stopAuto()
+    SuperAuto = false
+
+    status.Text = "  Status: System Idle"
+    button.Text = "Activate Super Auto"
+    button.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+end
+
+--==================================================
+-- START AUTO
+--==================================================
+
+local function startAuto()
+    if autoThread then
+        return
+    end
+
+    SuperAuto = true
+
+    status.Text = "  Status: ALL AUTO RUNNING..."
+    button.Text = "Deactivate Super Auto"
+    button.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+
+    autoThread = task.spawn(function()
+        local remotes = getRemotes()
+
+        local crystalTimer = 0
+        local rebirthTimer = 0
+
+        while SuperAuto and gui.Parent do
+            local startTime = os.clock()
+
+            doAutoAction(remotes)
+
+            crystalTimer += AUTO_INTERVAL
+            rebirthTimer += AUTO_INTERVAL
+
+            if crystalTimer >= CRYSTAL_INTERVAL then
+                crystalTimer = 0
+
+                fireRemote(
+                    remotes.Crystal,
+                    "openCrystalRequest",
+                    "Blue Crystal"
+                )
+            end
+
+            if rebirthTimer >= REBIRTH_INTERVAL then
+                rebirthTimer = 0
+
+                fireRemote(
+                    remotes.Rebirth,
+                    "rebirthRequest"
+                )
+            end
+
+            local elapsed = os.clock() - startTime
+            task.wait(math.max(0, AUTO_INTERVAL - elapsed))
+        end
+
+        autoThread = nil
+    end)
+end
+
+--==================================================
+-- BUTTON
+--==================================================
+
+button.MouseButton1Click:Connect(function()
+    if SuperAuto then
+        stopAuto()
+    else
+        startAuto()
+    end
+end)
+
+--==================================================
+-- CLOSE
+--==================================================
+
+close.MouseButton1Click:Connect(function()
+    stopAuto()
+    gui:Destroy()
+end)
+
+--==================================================
+-- KEY SYSTEM
+--==================================================
+
+local checkingKey = false
+
+local function checkKey()
+    if checkingKey then
+        return
+    end
+
+    checkingKey = true
+
+    if textBox.Text == KEY then
+        keyFrame.Visible = false
+        main.Visible = true
+        status.Text = "  Status: Key Accepted"
+    else
+        textBox.Text = ""
+        textBox.PlaceholderText = "Wrong Key! Try Again..."
+    end
+
+    task.delay(0.25, function()
+        checkingKey = false
+    end)
+end
+
+kBtn.MouseButton1Click:Connect(checkKey)
+
+textBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        checkKey()
+    end
+end)
+
+--==================================================
+-- CLEANUP
+--==================================================
+
+gui.Destroying:Connect(function()
+    SuperAuto = false
+end)
+```
