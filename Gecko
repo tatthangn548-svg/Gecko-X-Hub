@@ -1,0 +1,173 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Config = {
+	Name = "Gecko",
+	Key = "GeckoMus",
+	BackgroundColor = Color3.fromRGB(20, 20, 20),
+	SecondaryColor = Color3.fromRGB(50, 50, 50),
+	AccentColor = Color3.fromRGB(90, 90, 90)
+}
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+if playerGui:FindFirstChild(Config.Name .. "GUI") then
+	playerGui[Config.Name .. "GUI"]:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = Config.Name .. "GUI"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+local main = Instance.new("Frame")
+main.Name = "Main"
+main.Size = UDim2.fromOffset(420, 280)
+main.Position = UDim2.fromScale(0.5, 0.5)
+main.AnchorPoint = Vector2.new(0.5, 0.5)
+main.BackgroundColor3 = Config.BackgroundColor
+main.BorderSizePixel = 0
+main.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = main
+
+local fontRegular = Font.fromName("Montserrat", Enum.FontWeight.Regular)
+local fontMedium = Font.fromName("Montserrat", Enum.FontWeight.Medium)
+local fontBold = Font.fromName("Montserrat", Enum.FontWeight.Bold)
+
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.Size = UDim2.new(1, -30, 0, 45)
+title.Position = UDim2.fromOffset(15, 10)
+title.BackgroundTransparency = 1
+title.Text = Config.Name
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextSize = 24
+title.FontFace = fontBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = main
+
+local subtitle = Instance.new("TextLabel")
+subtitle.Size = UDim2.new(1, -30, 0, 25)
+subtitle.Position = UDim2.fromOffset(15, 52)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "Muscle Legends All-In-One"
+subtitle.TextColor3 = Color3.fromRGB(170, 170, 170)
+subtitle.TextSize = 14
+subtitle.FontFace = fontRegular
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
+subtitle.Parent = main
+
+local separator = Instance.new("Frame")
+separator.Size = UDim2.new(1, -30, 0, 1)
+separator.Position = UDim2.fromOffset(15, 85)
+separator.BackgroundColor3 = Config.SecondaryColor
+separator.BorderSizePixel = 0
+separator.Parent = main
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -30, 0, 35)
+status.Position = UDim2.fromOffset(15, 105)
+status.BackgroundColor3 = Config.SecondaryColor
+status.Text = "  Status: System Idle"
+status.TextColor3 = Color3.fromRGB(220, 220, 220)
+status.TextSize = 14
+status.FontFace = fontMedium
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.Parent = main
+
+local statusCorner = Instance.new("UICorner")
+statusCorner.CornerRadius = UDim.new(0, 8)
+statusCorner.Parent = status
+
+local button = Instance.new("TextButton")
+button.Name = "ActionButton"
+button.Size = UDim2.new(1, -30, 0, 45)
+button.Position = UDim2.fromOffset(15, 155)
+button.BackgroundColor3 = Config.AccentColor
+button.Text = "Activate Super Auto"
+button.TextColor3 = Color3.new(1, 1, 1)
+button.TextSize = 16
+button.FontFace = fontBold
+button.AutoButtonColor = true
+button.Parent = main
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 8)
+buttonCorner.Parent = button
+
+_G.SuperAutoActive = false
+
+button.MouseButton1Click:Connect(function()
+	_G.SuperAutoActive = not _G.SuperAutoActive
+	
+	if _G.SuperAutoActive then
+		status.Text = "  Status: ALL AUTO RUNNING..."
+		button.Text = "Deactivate Super Auto"
+		button.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+		
+		task.spawn(function()
+			local rEvents = ReplicatedStorage:FindFirstChild("rEvents")
+			local muscleEvent = rEvents and rEvents:FindFirstChild("muscleEvent")
+			local rebirthEvent = rEvents and rEvents:FindFirstChild("rebirthEvent")
+			local openCrystalEvent = rEvents and rEvents:FindFirstChild("openCrystalEvent")
+			
+			if muscleEvent and rebirthEvent and openCrystalEvent then
+				while _G.SuperAutoActive do
+					muscleEvent:FireServer("liftWeight")
+					muscleEvent:FireServer("pushups")
+					muscleEvent:FireServer("treadmill")
+					openCrystalEvent:FireServer("openCrystal", "Blue Crystal")
+					
+					local character = player.Character
+					if character and not character:FindFirstChildOfClass("Tool") then
+						local backpack = player:FindFirstChild("Backpack")
+						local tool = backpack and backpack:FindFirstChildOfClass("Tool")
+						if tool then
+							tool.Parent = character
+						end
+					end
+					
+					task.wait(0.01)
+				end
+			end
+		end)
+		
+		task.spawn(function()
+			local rebirthEvent = ReplicatedStorage:FindFirstChild("rEvents") and ReplicatedStorage.rEvents:FindFirstChild("rebirthEvent")
+			if rebirthEvent then
+				while _G.SuperAutoActive do
+					rebirthEvent:FireServer("rebirthRequest")
+					task.wait(1)
+				end
+			end
+		end)
+		
+	else
+		status.Text = "  Status: System Idle"
+		button.Text = "Activate Super Auto"
+		button.BackgroundColor3 = Config.AccentColor
+	end
+end)
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(30, 30)
+close.Position = UDim2.new(1, -40, 0, 12)
+close.BackgroundColor3 = Config.SecondaryColor
+close.Text = "X"
+close.TextColor3 = Color3.new(1, 1, 1)
+close.TextSize = 14
+close.FontFace = fontBold
+close.Parent = main
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.Parent = close
+
+close.MouseButton1Click:Connect(function()
+	_G.SuperAutoActive = false
+	gui:Destroy()
+end)
