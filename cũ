@@ -1,0 +1,128 @@
+-- Gecko GUI - Roblox Studio
+-- Đặt LocalScript này vào StarterPlayer > StarterPlayerScripts
+
+local Players = game:GetService("Players")
+
+local Config = {
+	Name = "Gecko",
+	Key = "GeckoMus",
+	BackgroundColor = Color3.fromRGB(20, 20, 20),
+	SecondaryColor = Color3.fromRGB(50, 50, 50),
+	AccentColor = Color3.fromRGB(90, 90, 90),
+	Image = nil
+}
+
+local player = Players.LocalPlayer
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = Config.Name .. "GUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Main frame
+local main = Instance.new("Frame")
+main.Name = "Main"
+main.Size = UDim2.fromOffset(420, 280)
+main.Position = UDim2.fromScale(0.5, 0.5)
+main.AnchorPoint = Vector2.new(0.5, 0.5)
+main.BackgroundColor3 = Config.BackgroundColor
+main.BorderSizePixel = 0
+main.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = main
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.Size = UDim2.new(1, -30, 0, 45)
+title.Position = UDim2.fromOffset(15, 10)
+title.BackgroundTransparency = 1
+title.Text = Config.Name
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextSize = 24
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = main
+
+-- Subtitle
+local subtitle = Instance.new("TextLabel")
+subtitle.Size = UDim2.new(1, -30, 0, 25)
+subtitle.Position = UDim2.fromOffset(15, 52)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "GeckoMus"
+subtitle.TextColor3 = Color3.fromRGB(170, 170, 170)
+subtitle.TextSize = 14
+subtitle.Font = Enum.Font.Gotham
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
+subtitle.Parent = main
+
+-- Separator
+local separator = Instance.new("Frame")
+separator.Size = UDim2.new(1, -30, 0, 1)
+separator.Position = UDim2.fromOffset(15, 85)
+separator.BackgroundColor3 = Config.SecondaryColor
+separator.BorderSizePixel = 0
+separator.Parent = main
+
+-- Status
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -30, 0, 35)
+status.Position = UDim2.fromOffset(15, 105)
+status.BackgroundColor3 = Config.SecondaryColor
+status.Text = "  Status: Ready"
+status.TextColor3 = Color3.fromRGB(220, 220, 220)
+status.TextSize = 14
+status.Font = Enum.Font.GothamMedium
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.Parent = main
+
+local statusCorner = Instance.new("UICorner")
+statusCorner.CornerRadius = UDim.new(0, 8)
+statusCorner.Parent = status
+
+-- Action button
+local button = Instance.new("TextButton")
+button.Name = "ActionButton"
+button.Size = UDim2.new(1, -30, 0, 45)
+button.Position = UDim2.fromOffset(15, 155)
+button.BackgroundColor3 = Config.AccentColor
+button.Text = "Activate"
+button.TextColor3 = Color3.new(1, 1, 1)
+button.TextSize = 16
+button.Font = Enum.Font.GothamBold
+button.AutoButtonColor = true
+button.Parent = main
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 8)
+buttonCorner.Parent = button
+
+button.MouseButton1Click:Connect(function()
+	status.Text = "  Status: Activated"
+	button.Text = "Activated"
+
+	print(Config.Name .. " activated")
+	print("Key:", Config.Key)
+end)
+
+-- Close button
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(30, 30)
+close.Position = UDim2.new(1, -40, 0, 12)
+close.BackgroundColor3 = Config.SecondaryColor
+close.Text = "X"
+close.TextColor3 = Color3.new(1, 1, 1)
+close.TextSize = 14
+close.Font = Enum.Font.GothamBold
+close.Parent = main
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.Parent = close
+
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
