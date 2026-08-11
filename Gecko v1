@@ -1,0 +1,257 @@
+```lua
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Xóa GUI cũ nếu script chạy lại
+local oldGui = playerGui:FindFirstChild("GeckoMus")
+if oldGui then
+	oldGui:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "GeckoMus"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = playerGui
+
+local BLACK = Color3.fromRGB(10, 10, 10)
+local DARK = Color3.fromRGB(18, 18, 18)
+local GRAY = Color3.fromRGB(32, 32, 32)
+local LIGHT = Color3.fromRGB(55, 55, 55)
+local WHITE = Color3.fromRGB(235, 235, 235)
+local RED = Color3.fromRGB(190, 55, 55)
+local GREEN = Color3.fromRGB(70, 170, 90)
+
+local function corner(object, radius)
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, radius)
+	c.Parent = object
+end
+
+local function createButton(parent, text, y)
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(1, -30, 0, 45)
+	button.Position = UDim2.fromOffset(15, y)
+	button.BackgroundColor3 = GRAY
+	button.BorderSizePixel = 0
+	button.Text = text
+	button.TextColor3 = WHITE
+	button.TextSize = 14
+	button.Font = Enum.Font.GothamSemibold
+	button.AutoButtonColor = true
+	button.Parent = parent
+
+	corner(button, 9)
+
+	return button
+end
+
+--==================================================
+-- KEY WINDOW
+--==================================================
+
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.fromOffset(360, 260)
+keyFrame.Position = UDim2.new(0.5, -180, 0.5, -130)
+keyFrame.BackgroundColor3 = BLACK
+keyFrame.BorderSizePixel = 0
+keyFrame.Parent = gui
+
+corner(keyFrame, 14)
+
+local logo = Instance.new("TextLabel")
+logo.Size = UDim2.new(1, 0, 0, 60)
+logo.BackgroundTransparency = 1
+logo.Text = "🦎"
+logo.TextSize = 40
+logo.Parent = keyFrame
+
+local keyTitle = Instance.new("TextLabel")
+keyTitle.Size = UDim2.new(1, 0, 0, 30)
+keyTitle.Position = UDim2.fromOffset(0, 65)
+keyTitle.BackgroundTransparency = 1
+keyTitle.Text = "GECKO MUS"
+keyTitle.TextColor3 = WHITE
+keyTitle.TextSize = 22
+keyTitle.Font = Enum.Font.GothamBold
+keyTitle.Parent = keyFrame
+
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(1, -40, 0, 42)
+keyBox.Position = UDim2.fromOffset(20, 110)
+keyBox.BackgroundColor3 = GRAY
+keyBox.BorderSizePixel = 0
+keyBox.PlaceholderText = "Enter key..."
+keyBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 120)
+keyBox.Text = ""
+keyBox.TextColor3 = WHITE
+keyBox.TextSize = 15
+keyBox.Font = Enum.Font.Gotham
+keyBox.ClearTextOnFocus = false
+keyBox.Parent = keyFrame
+
+corner(keyBox, 8)
+
+local verify = createButton(keyFrame, "VERIFY KEY", 165)
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -20, 0, 25)
+status.Position = UDim2.fromOffset(10, 215)
+status.BackgroundTransparency = 1
+status.Text = ""
+status.TextColor3 = RED
+status.TextSize = 12
+status.Font = Enum.Font.Gotham
+status.Parent = keyFrame
+
+--==================================================
+-- MAIN WINDOW
+--==================================================
+
+local main = Instance.new("Frame")
+main.Size = UDim2.fromOffset(380, 430)
+main.Position = UDim2.new(0.5, -190, 0.5, -215)
+main.BackgroundColor3 = BLACK
+main.BorderSizePixel = 0
+main.Visible = false
+main.Parent = gui
+
+corner(main, 14)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 60)
+title.BackgroundColor3 = DARK
+title.Text = "🦎  GECKO MUS"
+title.TextColor3 = WHITE
+title.TextSize = 21
+title.Font = Enum.Font.GothamBold
+title.Parent = main
+
+corner(title, 14)
+
+local stats = Instance.new("TextLabel")
+stats.Size = UDim2.new(1, -30, 0, 75)
+stats.Position = UDim2.fromOffset(15, 75)
+stats.BackgroundColor3 = GRAY
+stats.BorderSizePixel = 0
+stats.TextColor3 = WHITE
+stats.TextSize = 16
+stats.TextXAlignment = Enum.TextXAlignment.Left
+stats.TextYAlignment = Enum.TextYAlignment.Center
+stats.Font = Enum.Font.GothamSemibold
+stats.Parent = main
+
+corner(stats, 9)
+
+local padding = Instance.new("UIPadding")
+padding.PaddingLeft = UDim.new(0, 15)
+padding.Parent = stats
+
+--==================================================
+-- DATA
+--==================================================
+
+local strength = 0
+local rebirths = 0
+local coins = 0
+
+local function updateStats()
+	stats.Text =
+		"Strength: " .. strength ..
+		"\nRebirths: " .. rebirths ..
+		"\nCoins: " .. coins
+end
+
+--==================================================
+-- BUTTONS
+--==================================================
+
+local train = createButton(main, "💪  Train Strength", 165)
+local rebirth = createButton(main, "🔄  Rebirth", 220)
+local addCoins = createButton(main, "💰  Add Coins", 275)
+local reset = createButton(main, "♻  Reset Stats", 330)
+local close = createButton(main, "✕  Close", 385)
+
+--==================================================
+-- FUNCTIONS
+--==================================================
+
+train.Activated:Connect(function()
+	strength += 10
+	updateStats()
+end)
+
+rebirth.Activated:Connect(function()
+	if strength < 100 then
+		stats.Text =
+			"Need 100 Strength to Rebirth!" ..
+			"\nStrength: " .. strength ..
+			"\nRebirths: " .. rebirths
+		return
+	end
+
+	strength = 0
+	rebirths += 1
+	coins += 100
+	updateStats()
+end)
+
+addCoins.Activated:Connect(function()
+	coins += 50
+	updateStats()
+end)
+
+reset.Activated:Connect(function()
+	strength = 0
+	rebirths = 0
+	coins = 0
+	updateStats()
+end)
+
+close.Activated:Connect(function()
+	main.Visible = false
+end)
+
+--==================================================
+-- KEY
+--==================================================
+
+local checkingKey = false
+
+local function checkKey()
+	if checkingKey then
+		return
+	end
+
+	checkingKey = true
+
+	if keyBox.Text == "GeckoMus" then
+		status.TextColor3 = GREEN
+		status.Text = "Key accepted!"
+
+		task.wait(0.3)
+
+		keyFrame.Visible = false
+		main.Visible = true
+		updateStats()
+	else
+		status.TextColor3 = RED
+		status.Text = "Invalid key!"
+		keyBox.Text = ""
+	end
+
+	checkingKey = false
+end
+
+verify.Activated:Connect(checkKey)
+
+keyBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		checkKey()
+	end
+end)
+
+updateStats()
+```
