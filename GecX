@@ -1,0 +1,686 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+print("GeckoXHub loaded")  -- Kiểm tra executor
+
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
+
+if playerGui:FindFirstChild("GeckoXHub") then
+    playerGui.GeckoXHub:Destroy()
+end
+
+local function corner(p, r)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, r)
+    c.Parent = p
+    return c
+end
+
+local function stroke(p, t, tr)
+    local s = Instance.new("UIStroke")
+    s.Thickness = t
+    s.Transparency = tr or 0
+    s.Color = Color3.fromRGB(255, 255, 255)
+    s.Parent = p
+    return s
+end
+
+local function tween(obj, t, props)
+    local tw = TweenService:Create(obj, TweenInfo.new(t, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), props)
+    tw:Play()
+    return tw
+end
+
+local BG = Color3.fromRGB(25, 26, 33)
+local BGL = Color3.fromRGB(40, 41, 50)
+local ACC = Color3.fromRGB(110, 110, 245)
+local TXT = Color3.fromRGB(230, 230, 240)
+local DIM = Color3.fromRGB(160, 160, 175)
+
+local flags = {}
+local loops = {}
+local mainGui, hiddenIcon = nil, nil
+local flyGyro, flyVel = nil, nil
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "GeckoXHub"
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = playerGui
+
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.fromOffset(320, 260)
+keyFrame.Position = UDim2.fromScale(0.5, 0.5)
+keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+keyFrame.BackgroundColor3 = BG
+keyFrame.Parent = gui
+corner(keyFrame, 16)
+stroke(keyFrame, 1.5, 0.8)
+
+local titleKey = Instance.new("TextLabel")
+titleKey.Size = UDim2.new(1, -40, 0, 50)
+titleKey.Position = UDim2.fromOffset(20, 18)
+titleKey.BackgroundTransparency = 1
+titleKey.Text = "GeckoXHub | Good day | Hi " .. player.Name
+titleKey.TextColor3 = TXT
+titleKey.TextSize = 18
+titleKey.Font = Enum.Font.GothamBold
+titleKey.TextXAlignment = Enum.TextXAlignment.Left
+titleKey.Parent = keyFrame
+
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(1, -40, 0, 50)
+keyBox.Position = UDim2.fromOffset(20, 85)
+keyBox.BackgroundColor3 = BGL
+keyBox.PlaceholderText = "Key..."
+keyBox.PlaceholderColor3 = DIM
+keyBox.Text = ""
+keyBox.TextColor3 = TXT
+keyBox.TextSize = 20
+keyBox.Font = Enum.Font.Gotham
+keyBox.ClearTextOnFocus = false
+keyBox.Parent = keyFrame
+corner(keyBox, 12)
+stroke(keyBox, 1, 0.9)
+
+local unlockBtn = Instance.new("TextButton")
+unlockBtn.Size = UDim2.new(1, -40, 0, 48)
+unlockBtn.Position = UDim2.fromOffset(20, 150)
+unlockBtn.BackgroundColor3 = ACC
+unlockBtn.Text = "Unlock"
+unlockBtn.TextColor3 = Color3.fromRGB(255,255,255)
+unlockBtn.TextSize = 22
+unlockBtn.Font = Enum.Font.GothamBold
+unlockBtn.Parent = keyFrame
+corner(unlockBtn, 12)
+
+local statusLbl = Instance.new("TextLabel")
+statusLbl.Size = UDim2.new(1, -40, 0, 25)
+statusLbl.Position = UDim2.fromOffset(20, 210)
+statusLbl.BackgroundTransparency = 1
+statusLbl.Text = ""
+statusLbl.TextColor3 = Color3.fromRGB(255, 100, 100)
+statusLbl.TextSize = 16
+statusLbl.Font = Enum.Font.Gotham
+statusLbl.Parent = keyFrame
+
+hiddenIcon = Instance.new("TextButton")
+hiddenIcon.Size = UDim2.fromOffset(50, 50)
+hiddenIcon.Position = UDim2.fromScale(1, 0.5)
+hiddenIcon.AnchorPoint = Vector2.new(1, 0)
+hiddenIcon.BackgroundColor3 = BG
+hiddenIcon.Text = "🦎"
+hiddenIcon.TextSize = 30
+hiddenIcon.Font = Enum.Font.GothamBold
+hiddenIcon.TextColor3 = TXT
+hiddenIcon.Visible = false
+hiddenIcon.Parent = gui
+corner(hiddenIcon, 25)
+stroke(hiddenIcon, 1.5, 0.8)
+
+-- Spin effect (giữ lại)
+local function createSpinEffect(parent)
+    local spinFrame = Instance.new("Frame")
+    spinFrame.Size = UDim2.fromOffset(0, 0)
+    spinFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    spinFrame.Position = UDim2.fromScale(0.5, 0.5)
+    spinFrame.BackgroundColor3 = ACC
+    spinFrame.BorderSizePixel = 0
+    spinFrame.Parent = parent
+    corner(spinFrame, 50)
+    
+    local spinLabel = Instance.new("ImageLabel")
+    spinLabel.Size = UDim2.fromScale(1, 1)
+    spinLabel.BackgroundTransparency = 1
+    spinLabel.Image = "rbxassetid://6014261993"
+    spinLabel.Parent = spinFrame
+    
+    local tween1 = TweenService:Create(spinFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.fromOffset(200, 200),
+        BackgroundTransparency = 0.8
+    })
+    local tween2 = TweenService:Create(spinFrame, TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1), {
+        Rotation = 360
+    })
+    tween1:Play()
+    tween2:Play()
+    delay(0.6, function()
+        tween2:Cancel()
+        spinFrame:Destroy()
+    end)
+end
+
+hiddenIcon.MouseButton1Click:Connect(function()
+    if mainGui then
+        mainGui.Visible = true
+        hiddenIcon.Visible = false
+    end
+end)
+
+-- Tạo Main GUI (giữ nguyên, copy toàn bộ phần createMainGUI từ script trước)
+local function createMainGUI()
+    mainGui = Instance.new("Frame")
+    mainGui.Size = UDim2.fromOffset(550, 420)
+    mainGui.Position = UDim2.fromScale(0.5, 0.5)
+    mainGui.AnchorPoint = Vector2.new(0.5, 0.5)
+    mainGui.BackgroundColor3 = BG
+    mainGui.BackgroundTransparency = 1
+    mainGui.Parent = gui
+    corner(mainGui, 18)
+    stroke(mainGui, 1.5, 0.85)
+
+    local header = Instance.new("Frame")
+    header.Size = UDim2.new(1, 0, 0, 48)
+    header.BackgroundColor3 = BGL
+    header.Parent = mainGui
+    corner(header, 18)
+    local headerFix = Instance.new("Frame")
+    headerFix.Size = UDim2.new(1, 0, 0, 20)
+    headerFix.Position = UDim2.new(0, 0, 1, -20)
+    headerFix.BackgroundColor3 = BGL
+    headerFix.BorderSizePixel = 0
+    headerFix.Parent = header
+
+    local headerTitle = Instance.new("TextLabel")
+    headerTitle.Size = UDim2.new(1, -130, 1, 0)
+    headerTitle.Position = UDim2.fromOffset(18, 0)
+    headerTitle.BackgroundTransparency = 1
+    headerTitle.Text = "GeckoXHub | Chào " .. player.Name
+    headerTitle.TextColor3 = TXT
+    headerTitle.TextSize = 20
+    headerTitle.Font = Enum.Font.GothamBold
+    headerTitle.TextXAlignment = Enum.TextXAlignment.Left
+    headerTitle.Parent = header
+
+    local hideBtn = Instance.new("TextButton")
+    hideBtn.Size = UDim2.fromOffset(30, 30)
+    hideBtn.Position = UDim2.new(1, -80, 0, 9)
+    hideBtn.BackgroundTransparency = 1
+    hideBtn.Text = "–"
+    hideBtn.TextColor3 = TXT
+    hideBtn.TextSize = 28
+    hideBtn.Font = Enum.Font.GothamBold
+    hideBtn.Parent = header
+    hideBtn.MouseButton1Click:Connect(function()
+        mainGui.Visible = false
+        hiddenIcon.Visible = true
+    end)
+
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.fromOffset(30, 30)
+    closeBtn.Position = UDim2.new(1, -40, 0, 9)
+    closeBtn.BackgroundTransparency = 1
+    closeBtn.Text = "×"
+    closeBtn.TextColor3 = TXT
+    closeBtn.TextSize = 28
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.Parent = header
+
+    local confirmFrame = Instance.new("Frame")
+    confirmFrame.Size = UDim2.fromOffset(250, 130)
+    confirmFrame.Position = UDim2.fromScale(0.5, 0.5)
+    confirmFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    confirmFrame.BackgroundColor3 = Color3.fromRGB(30, 31, 39)
+    confirmFrame.Visible = false
+    confirmFrame.ZIndex = 10
+    confirmFrame.Parent = mainGui
+    corner(confirmFrame, 14)
+    stroke(confirmFrame, 2, 0.2)
+
+    local confirmText = Instance.new("TextLabel")
+    confirmText.Size = UDim2.new(1, -30, 0, 40)
+    confirmText.Position = UDim2.fromOffset(15, 15)
+    confirmText.BackgroundTransparency = 1
+    confirmText.Text = "Bạn chắc chứ?"
+    confirmText.TextColor3 = TXT
+    confirmText.TextSize = 22
+    confirmText.Font = Enum.Font.GothamBold
+    confirmText.Parent = confirmFrame
+
+    local yesBtn = Instance.new("TextButton")
+    yesBtn.Size = UDim2.fromOffset(80, 35)
+    yesBtn.Position = UDim2.fromOffset(25, 70)
+    yesBtn.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
+    yesBtn.Text = "Có"
+    yesBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    yesBtn.TextSize = 18
+    yesBtn.Font = Enum.Font.GothamBold
+    yesBtn.Parent = confirmFrame
+    corner(yesBtn, 10)
+    yesBtn.MouseButton1Click:Connect(function()
+        gui:Destroy()
+        for _, v in pairs(loops) do pcall(function() v:Disconnect() end) end
+        flags = {}
+    end)
+
+    local noBtn = Instance.new("TextButton")
+    noBtn.Size = UDim2.fromOffset(80, 35)
+    noBtn.Position = UDim2.fromOffset(145, 70)
+    noBtn.BackgroundColor3 = BGL
+    noBtn.Text = "Không"
+    noBtn.TextColor3 = TXT
+    noBtn.TextSize = 18
+    noBtn.Font = Enum.Font.GothamBold
+    noBtn.Parent = confirmFrame
+    corner(noBtn, 10)
+    noBtn.MouseButton1Click:Connect(function()
+        confirmFrame.Visible = false
+    end)
+
+    closeBtn.MouseButton1Click:Connect(function()
+        confirmFrame.Visible = true
+    end)
+
+    -- Tabs
+    local tabFrame = Instance.new("Frame")
+    tabFrame.Size = UDim2.new(1, -30, 0, 30)
+    tabFrame.Position = UDim2.fromOffset(15, 55)
+    tabFrame.BackgroundTransparency = 1
+    tabFrame.Parent = mainGui
+
+    local contentArea = Instance.new("Frame")
+    contentArea.Size = UDim2.new(1, -30, 1, -105)
+    contentArea.Position = UDim2.fromOffset(15, 90)
+    contentArea.BackgroundColor3 = BGL
+    contentArea.BackgroundTransparency = 0.8
+    contentArea.Parent = mainGui
+    corner(contentArea, 14)
+
+    local tabs = {}
+    local currentTab = "Chính"
+
+    local function switchTab(name)
+        currentTab = name
+        for _, btn in ipairs(tabs) do
+            btn.BackgroundColor3 = btn.Name == name and ACC or Color3.fromRGB(70, 71, 80)
+            btn.TextColor3 = btn.Name == name and Color3.fromRGB(255,255,255) or TXT
+        end
+        for _, f in ipairs(contentArea:GetChildren()) do
+            if f:IsA("Frame") then f.Visible = (f.Name == name) end
+        end
+    end
+
+    local function addTabButton(name, x, w)
+        local btn = Instance.new("TextButton")
+        btn.Name = name
+        btn.Size = UDim2.fromOffset(w or 70, 28)
+        btn.Position = UDim2.fromOffset(x, 1)
+        btn.BackgroundColor3 = name == "Chính" and ACC or Color3.fromRGB(70, 71, 80)
+        btn.Text = name
+        btn.TextColor3 = name == "Chính" and Color3.fromRGB(255,255,255) or TXT
+        btn.TextSize = 16
+        btn.Font = Enum.Font.GothamBold
+        btn.Parent = tabFrame
+        corner(btn, 8)
+        btn.MouseButton1Click:Connect(function() switchTab(name) end)
+        table.insert(tabs, btn)
+    end
+
+    local tabNames = {"Chính", "Farm", "Tái Sinh", "Giết", "Đá", "Dịch", "Pet"}
+    local tabWidths = {60, 60, 70, 55, 45, 60, 45}
+    local xPos = 0
+    for i, name in ipairs(tabNames) do
+        addTabButton(name, xPos, tabWidths[i])
+        xPos = xPos + tabWidths[i] + 5
+    end
+
+    local function createContentTab(name)
+        local fr = Instance.new("Frame")
+        fr.Name = name
+        fr.Size = UDim2.new(1, 0, 1, 0)
+        fr.BackgroundTransparency = 1
+        fr.Visible = (name == "Chính")
+        fr.Parent = contentArea
+        return fr
+    end
+
+    local function createToggle(parent, text, y, flagName)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(1, -16, 0, 36)
+        btn.Position = UDim2.fromOffset(8, y)
+        btn.BackgroundColor3 = Color3.fromRGB(60, 61, 70)
+        btn.Text = "TẮT  " .. text
+        btn.TextColor3 = TXT
+        btn.TextSize = 17
+        btn.Font = Enum.Font.GothamMedium
+        btn.TextXAlignment = Enum.TextXAlignment.Left
+        btn.Parent = parent
+        corner(btn, 10)
+
+        local on = false
+        flags[flagName] = false
+        btn.MouseButton1Click:Connect(function()
+            on = not on
+            flags[flagName] = on
+            btn.Text = (on and "BẬT  " or "TẮT  ") .. text
+            btn.BackgroundColor3 = on and ACC or Color3.fromRGB(60, 61, 70)
+        end)
+        return btn
+    end
+
+    local function createTextBox(parent, y, placeholder, flagName)
+        local box = Instance.new("TextBox")
+        box.Size = UDim2.new(1, -16, 0, 34)
+        box.Position = UDim2.fromOffset(8, y)
+        box.BackgroundColor3 = Color3.fromRGB(50, 51, 60)
+        box.PlaceholderText = placeholder
+        box.PlaceholderColor3 = DIM
+        box.Text = ""
+        box.TextColor3 = TXT
+        box.TextSize = 16
+        box.Font = Enum.Font.Gotham
+        box.ClearTextOnFocus = false
+        box.Parent = parent
+        corner(box, 8)
+        flags[flagName] = ""
+        box.FocusLost:Connect(function(enterPressed)
+            flags[flagName] = box.Text
+        end)
+        return box
+    end
+
+    -- Tab Chính
+    local mainTab = createContentTab("Chính")
+    local infoLabel = Instance.new("TextLabel")
+    infoLabel.Size = UDim2.new(1, -16, 0, 200)
+    infoLabel.Position = UDim2.fromOffset(8, 8)
+    infoLabel.BackgroundTransparency = 1
+    infoLabel.Text = "GeckoXHub v2\nChủ sở hữu: Gecko_GK\n\nCảm ơn bạn đã sử dụng!\nChúc bạn chơi game vui vẻ."
+    infoLabel.TextColor3 = TXT
+    infoLabel.TextSize = 18
+    infoLabel.Font = Enum.Font.GothamMedium
+    infoLabel.TextXAlignment = Enum.TextXAlignment.Left
+    infoLabel.TextYAlignment = Enum.TextYAlignment.Top
+    infoLabel.Parent = mainTab
+
+    -- Tab Farm
+    local farmTab = createContentTab("Farm")
+    createToggle(farmTab, "Auto Nâng Tạ", 8, "AutoWeight")
+    createToggle(farmTab, "Auto Tập Thể Hình", 46, "AutoLift")
+    createToggle(farmTab, "Auto Farm (Nhặt)", 84, "AutoFarm")
+    createToggle(farmTab, "Tăng Tốc Độ", 122, "SpeedBoost")
+    createToggle(farmTab, "Nhảy Cao", 160, "JumpPower")
+    createToggle(farmTab, "Bay", 198, "Fly")
+    createToggle(farmTab, "Xuyên Tường", 236, "Noclip")
+    createToggle(farmTab, "Đấm Xa", 274, "LongPunch")
+
+    -- Tab Tái Sinh
+    local rebirthTab = createContentTab("Tái Sinh")
+    createToggle(rebirthTab, "Auto Tái Sinh", 8, "AutoRebirth")
+
+    -- Tab Giết
+    local killingTab = createContentTab("Giết")
+    createToggle(killingTab, "Auto Giết (Gần nhất)", 8, "AutoKill")
+    createToggle(killingTab, "Auto Bad Karma", 46, "AutoBadKarma")
+    createToggle(killingTab, "Auto Good Karma", 84, "AutoGoodKarma")
+    createTextBox(killingTab, 130, "Tên người chơi", "KillTarget")
+
+    -- Tab Đá (đầy đủ 5 mức)
+    local rockTab = createContentTab("Đá")
+    createToggle(rockTab, "Auto Đá (100k)", 8, "AutoRock100k")
+    createToggle(rockTab, "Auto Đá (350k)", 46, "AutoRock350k")
+    createToggle(rockTab, "Auto Đá (750k)", 84, "AutoRock750k")
+    createToggle(rockTab, "Auto Đá (1m)", 122, "AutoRock1m")
+    createToggle(rockTab, "Auto Đá (10m)", 160, "AutoRock10m")
+
+    -- Tab Dịch
+    local teleTab = createContentTab("Dịch")
+    createToggle(teleTab, "Dịch Vua", 8, "TeleKing")
+    createToggle(teleTab, "Dịch Tất Cả Đảo", 46, "TeleAllIslands")
+
+    -- Tab Pet
+    local petTab = createContentTab("Pet")
+    createToggle(petTab, "Mua Blue Crystal", 8, "BuyBlueCrystal")
+    createToggle(petTab, "Mua Green Crystal", 46, "BuyGreenCrystal")
+    createToggle(petTab, "Mua Darkstar", 84, "BuyDarkstar")
+    createToggle(petTab, "Auto Tiến Hóa Pet", 122, "AutoEvolve")
+
+    tween(mainGui, 0.35, { BackgroundTransparency = 0.04 })
+end
+
+-- Helpers
+local function fireProximityPromptOnParts(keyword)
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and v.Name:lower():find(keyword) then
+            local pp = v:FindFirstChildOfClass("ProximityPrompt")
+            if pp and pp.Enabled then
+                pcall(function()
+                    pp:InputHoldBegin()
+                    wait(0.05)
+                    pp:InputHoldEnd()
+                end)
+            end
+        end
+    end
+end
+
+local function fireRemoteOnPart(keyword)
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and v.Name:lower():find(keyword) then
+            local re = v:FindFirstChildOfClass("RemoteEvent")
+            if re then re:FireServer() return end
+            local pp = v:FindFirstChildOfClass("ProximityPrompt")
+            if pp and pp.Enabled then
+                pcall(function()
+                    pp:InputHoldBegin()
+                    wait(0.05)
+                    pp:InputHoldEnd()
+                end)
+            end
+        end
+    end
+end
+
+local function findTool(name)
+    for _, t in ipairs(player.Backpack:GetChildren()) do
+        if t:IsA("Tool") and t.Name:lower():find(name:lower()) then return t end
+    end
+    if character then
+        for _, t in ipairs(character:GetChildren()) do
+            if t:IsA("Tool") and t.Name:lower():find(name:lower()) then return t end
+        end
+    end
+    return nil
+end
+
+local function getNearestPlayer(maxDist)
+    local nearest, dist = nil, maxDist or 100
+    local myPos = rootPart and rootPart.Position or Vector3.zero
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local pos = p.Character.HumanoidRootPart.Position
+            local d = (pos - myPos).Magnitude
+            if d < dist then
+                dist = d
+                nearest = p
+            end
+        end
+    end
+    return nearest
+end
+
+local function teleportTo(part)
+    if part and rootPart then rootPart.CFrame = part.CFrame + Vector3.new(0, 3, 0) end
+end
+
+-- Loops
+local function startLoops()
+    loops.SpeedJump = RunService.Heartbeat:Connect(function()
+        if flags.SpeedBoost then humanoid.WalkSpeed = 120 else humanoid.WalkSpeed = 16 end
+        if flags.JumpPower then humanoid.JumpPower = 150 else humanoid.JumpPower = 50 end
+    end)
+
+    loops.Fly = RunService.Heartbeat:Connect(function()
+        if flags.Fly then
+            if not flyGyro then
+                flyGyro = Instance.new("BodyGyro")
+                flyGyro.P = 9e4
+                flyGyro.Parent = rootPart
+                flyVel = Instance.new("BodyVelocity")
+                flyVel.MaxForce = Vector3.new(9e9,9e9,9e9)
+                flyVel.Parent = rootPart
+            end
+            flyGyro.CFrame = workspace.CurrentCamera.CFrame
+            local dir = Vector3.new()
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir += workspace.CurrentCamera.CFrame.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir -= workspace.CurrentCamera.CFrame.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then dir -= workspace.CurrentCamera.CFrame.RightVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then dir += workspace.CurrentCamera.CFrame.RightVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then dir += Vector3.new(0,1,0) end
+            if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= Vector3.new(0,1,0) end
+            flyVel.Velocity = dir * 80
+        else
+            if flyGyro then flyGyro:Destroy() flyVel:Destroy() flyGyro, flyVel = nil, nil end
+        end
+    end)
+
+    loops.Noclip = RunService.Stepped:Connect(function()
+        if flags.Noclip and character then
+            for _, p in ipairs(character:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end
+        end
+    end)
+
+    loops.LongPunch = RunService.Heartbeat:Connect(function()
+        if flags.LongPunch then
+            local tool = findTool("punch") or findTool("boxing") or findTool("fight")
+            if tool then
+                if tool.Parent == player.Backpack then humanoid:EquipTool(tool)
+                elseif tool.Parent == character then tool:Activate()
+                end
+                local remote = tool:FindFirstChild("RemoteEvent") or tool:FindFirstChild("ActivateRemote")
+                if remote then remote:FireServer() end
+            end
+        end
+    end)
+
+    spawn(function()
+        while wait(0.5) do
+            if flags.AutoWeight then fireRemoteOnPart("weight") fireProximityPromptOnParts("weight") end
+            if flags.AutoLift then fireRemoteOnPart("lift") fireProximityPromptOnParts("lift") end
+            if flags.AutoFarm then
+                fireProximityPromptOnParts("coin")
+                fireProximityPromptOnParts("ore")
+                fireProximityPromptOnParts("collect")
+                fireProximityPromptOnParts("farm")
+                fireProximityPromptOnParts("gather")
+            end
+            if flags.AutoRebirth then
+                local ls = player:FindFirstChild("leaderstats")
+                if ls then
+                    local rb = ls:FindFirstChild("Rebirths") or ls:FindFirstChild("Rebirth")
+                    if rb and rb.Value >= 1 then fireRemoteOnPart("rebirth") end
+                end
+            end
+            if flags.AutoKill then
+                local targetName = flags.KillTarget and flags.KillTarget ~= "" and flags.KillTarget
+                local target = targetName and Players:FindFirstChild(targetName)
+                if not target or not target.Character then target = getNearestPlayer(500) end
+                if target and target.Character then
+                    local tool = findTool("punch") or findTool("sword") or findTool("weapon")
+                    if tool then
+                        if tool.Parent == player.Backpack then humanoid:EquipTool(tool) end
+                        if tool.Parent == character then
+                            rootPart.CFrame = CFrame.lookAt(rootPart.Position, target.Character.HumanoidRootPart.Position)
+                            tool:Activate()
+                        end
+                    end
+                end
+            end
+            if flags.AutoBadKarma then fireProximityPromptOnParts("bad") fireRemoteOnPart("bad") end
+            if flags.AutoGoodKarma then fireProximityPromptOnParts("good") fireRemoteOnPart("good") end
+
+            -- Xử lý đá theo từng mức
+            if flags.AutoRock100k then fireProximityPromptOnParts("100k") fireRemoteOnPart("100k") end
+            if flags.AutoRock350k then fireProximityPromptOnParts("350k") fireRemoteOnPart("350k") end
+            if flags.AutoRock750k then fireProximityPromptOnParts("750k") fireRemoteOnPart("750k") end
+            if flags.AutoRock1m then fireProximityPromptOnParts("1m") fireRemoteOnPart("1m") end
+            if flags.AutoRock10m then fireProximityPromptOnParts("10m") fireRemoteOnPart("10m") end
+
+            if flags.TeleKing then
+                for _, v in ipairs(workspace:GetDescendants()) do
+                    if v:IsA("BasePart") and v.Name:lower():find("king") then
+                        teleportTo(v)
+                        break
+                    end
+                end
+            end
+            if flags.TeleAllIslands then
+                local islands = {}
+                for _, v in ipairs(workspace:GetDescendants()) do
+                    if v:IsA("BasePart") and v.Name:lower():find("island") then
+                        table.insert(islands, v)
+                    end
+                end
+                for _, part in ipairs(islands) do
+                    teleportTo(part)
+                    wait(1)
+                end
+            end
+            if flags.BuyBlueCrystal then fireProximityPromptOnParts("bluecrystal") fireRemoteOnPart("bluecrystal") end
+            if flags.BuyGreenCrystal then fireProximityPromptOnParts("greencrystal") fireRemoteOnPart("greencrystal") end
+            if flags.BuyDarkstar then fireProximityPromptOnParts("darkstar") fireRemoteOnPart("darkstar") end
+            if flags.AutoEvolve then
+                local evolveBtn = playerGui:FindFirstChild("EvolveButton") or playerGui:FindFirstChild("Evolve")
+                if evolveBtn and evolveBtn:IsA("TextButton") and evolveBtn.Visible then
+                    pcall(function() evolveBtn.MouseButton1Click:Fire() end)
+                end
+                fireRemoteOnPart("evolve")
+            end
+        end
+    end)
+
+    loops.FPS = RunService.Heartbeat:Connect(function()
+        if flags.FPSUnlock then pcall(function() setfpscap(240) end) end
+    end)
+    loops.LowGraphics = RunService.Heartbeat:Connect(function()
+        if flags.LowGraphics then pcall(function() game:GetService("UserGameSettings"):SetGraphicsQuality(1) end) end
+    end)
+    loops.AntiAFK = RunService.Heartbeat:Connect(function()
+        if flags.AntiAFK then UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseMovement) end
+    end)
+end
+
+player.CharacterAdded:Connect(function(newChar)
+    character = newChar
+    humanoid = character:WaitForChild("Humanoid")
+    rootPart = character:WaitForChild("HumanoidRootPart")
+    if flyGyro then flyGyro:Destroy() flyVel:Destroy() flyGyro, flyVel = nil, nil end
+end)
+
+-- Key check
+local checking = false
+local function checkKey()
+    if checking then return end
+    local input = keyBox.Text:lower():gsub("%s+", "")
+    if input == "geckomus" then
+        checking = true
+        createSpinEffect(gui)
+        wait(0.8)
+        tween(keyFrame, 0.3, { Size = UDim2.fromOffset(320, 200), BackgroundTransparency = 1 })
+        wait(0.3)
+        keyFrame:Destroy()
+        createMainGUI()
+        startLoops()
+    else
+        statusLbl.TextColor3 = Color3.fromRGB(255, 110, 110)
+        statusLbl.Text = "Sai key"
+        local origPos = keyBox.Position
+        for i = 1, 3 do
+            tween(keyBox, 0.08, { Position = UDim2.fromOffset(origPos.X.Offset - 3, origPos.Y.Offset) })
+            wait(0.1)
+            tween(keyBox, 0.08, { Position = UDim2.fromOffset(origPos.X.Offset + 3, origPos.Y.Offset) })
+            wait(0.1)
+        end
+        tween(keyBox, 0.08, { Position = origPos })
+    end
+end
+
+unlockBtn.MouseButton1Click:Connect(checkKey)
+keyBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then checkKey() end
+end)
