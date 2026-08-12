@@ -1,0 +1,139 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+if playerGui:FindFirstChild("GeckoXHub") then
+    playerGui.GeckoXHub:Destroy()
+end
+
+local flags = {}
+local mainGui = nil
+
+local BG = Color3.fromRGB(25, 26, 33)
+local ACC = Color3.fromRGB(110, 110, 245)
+
+local function addCorner(obj, radius)
+    local c = Instance.new("UICorner", obj)
+    c.CornerRadius = radius or 6
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "GeckoXHub"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.fromOffset(300, 150)
+keyFrame.Position = UDim2.fromScale(0.5, 0.5)
+keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+keyFrame.BackgroundColor3 = BG
+keyFrame.BorderSizePixel = 0
+keyFrame.Parent = gui
+addCorner(keyFrame, 8)
+
+local titleKey = Instance.new("TextLabel")
+titleKey.Size = UDim2.new(1, -40, 0, 30)
+titleKey.Position = UDim2.fromOffset(20, 10)
+titleKey.BackgroundTransparency = 1
+titleKey.Text = "GeckoXHub - Key System"
+titleKey.TextColor3 = Color3.fromRGB(230, 230, 240)
+titleKey.TextSize = 18
+titleKey.Font = Enum.Font.GothamBold
+titleKey.TextXAlignment = Enum.TextXAlignment.Left
+titleKey.Parent = keyFrame
+
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(1, -40, 0, 35)
+keyBox.Position = UDim2.fromOffset(20, 50)
+keyBox.BackgroundColor3 = Color3.fromRGB(40, 41, 50)
+keyBox.PlaceholderText = "Key..."
+keyBox.Text = ""
+keyBox.TextColor3 = Color3.fromRGB(230, 230, 240)
+keyBox.TextSize = 16
+keyBox.Font = Enum.Font.Gotham
+keyBox.ClearTextOnFocus = false
+keyBox.BorderSizePixel = 0
+keyBox.Parent = keyFrame
+addCorner(keyBox, 4)
+
+local unlockBtn = Instance.new("TextButton")
+unlockBtn.Size = UDim2.new(1, -40, 0, 35)
+unlockBtn.Position = UDim2.fromOffset(20, 95)
+unlockBtn.BackgroundColor3 = ACC
+unlockBtn.Text = "Unlock"
+unlockBtn.TextColor3 = Color3.fromRGB(255,255,255)
+unlockBtn.TextSize = 18
+unlockBtn.Font = Enum.Font.GothamBold
+unlockBtn.BorderSizePixel = 0
+unlockBtn.Parent = keyFrame
+addCorner(unlockBtn, 4)
+
+local statusLbl = Instance.new("TextLabel")
+statusLbl.Size = UDim2.new(1, -40, 0, 20)
+statusLbl.Position = UDim2.fromOffset(20, 130)
+statusLbl.BackgroundTransparency = 1
+statusLbl.Text = ""
+statusLbl.TextColor3 = Color3.fromRGB(255, 100, 100)
+statusLbl.TextSize = 14
+statusLbl.Font = Enum.Font.Gotham
+statusLbl.Parent = keyFrame
+
+local function createMainGUI()
+    mainGui = Instance.new("Frame")
+    mainGui.Size = UDim2.fromOffset(250, 70)
+    mainGui.Position = UDim2.fromScale(0.5, 0.5)
+    mainGui.AnchorPoint = Vector2.new(0.5, 0.5)
+    mainGui.BackgroundColor3 = BG
+    mainGui.BorderSizePixel = 0
+    mainGui.Visible = true
+    mainGui.Parent = gui
+    addCorner(mainGui, 8)
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -20, 0, 40)
+    btn.Position = UDim2.fromOffset(10, 15)
+    btn.BackgroundColor3 = Color3.fromRGB(60, 61, 70)
+    btn.Text = "OFF  Speed Boost"
+    btn.TextColor3 = Color3.fromRGB(230, 230, 240)
+    btn.TextSize = 16
+    btn.Font = Enum.Font.GothamMedium
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.BorderSizePixel = 0
+    btn.Parent = mainGui
+    addCorner(btn, 4)
+
+    local on = false
+    btn.MouseButton1Click:Connect(function()
+        on = not on
+        flags.SpeedBoost = on
+        btn.Text = (on and "ON   " or "OFF  ") .. "Speed Boost"
+        btn.BackgroundColor3 = on and ACC or Color3.fromRGB(60, 61, 70)
+    end)
+end
+
+RunService.Heartbeat:Connect(function()
+    if flags.SpeedBoost and player.Character then
+        local humanoid = player.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = 120
+        end
+    end
+end)
+
+local function checkKey()
+    if keyBox.Text:lower() == "geckomus" then
+        keyFrame:Destroy()
+        createMainGUI()
+        print("GeckoXHub unlocked!")
+    else
+        statusLbl.Text = "Wrong key"
+    end
+end
+
+unlockBtn.MouseButton1Click:Connect(checkKey)
+keyBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then checkKey() end
+end)
+
+print("GeckoXHub Minimal loaded!")
