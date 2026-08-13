@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ghjkl1312/GenX/refs/heads/main/genxloader.luau", true))()
